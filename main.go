@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +21,7 @@ func main() {
 	s.HandleFunc("/", handler).Methods("Get")
 	s.HandleFunc("/about", handlerAbout).Methods("Get")
 	s.HandleFunc("/post", handlerPost).Methods("Post")
+	s.HandleFunc("/posts", handlerGetPost).Methods("Get")
 	http.ListenAndServe(":8080", s)
 }
 
@@ -27,7 +30,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerAbout(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello There. This is just a simple code for makeing a Server :-)")
+	fmt.Fprintf(w, "Hello There. This is just a simple code for making a Server :-)")
 }
 
 func handlerPost(w http.ResponseWriter, r *http.Request) {
@@ -42,4 +45,14 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 
 	f.Write(b)
 	f.Write([]byte("\n"))
+}
+
+func handlerGetPost(w http.ResponseWriter, r *http.Request) {
+	data, err := ioutil.ReadFile("./data.txt")
+	b := bytes.NewBuffer(data)
+	w.Header().Set("Content-Type", "text")
+	_, err = b.WriteTo(w)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
